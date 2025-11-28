@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Reproductor Personal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Study Habitat - Your Relaxing Study Space</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -17,1049 +17,1445 @@
             font-family: 'Poppins', sans-serif;
             min-height: 100vh;
             overflow: hidden;
-            background: #0a0a0a;
+            color: white;
         }
 
-        /* Video Background */
-        #video-background {
+        /* Background Styles */
+        .background-container {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            min-width: 100%;
-            min-height: 100%;
-            width: auto;
-            height: auto;
-            transform: translate(-50%, -50%);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: -1;
-            pointer-events: none;
         }
 
-        #video-background iframe {
+        .background-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.5s ease;
+        }
+
+        .background-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .youtube-background {
             position: absolute;
             top: 50%;
             left: 50%;
             width: 100vw;
+            height: 100vh;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            display: none;
+        }
+
+        .youtube-background iframe {
+            width: 100vw;
             height: 56.25vw;
             min-height: 100vh;
             min-width: 177.77vh;
+            position: absolute;
+            top: 50%;
+            left: 50%;
             transform: translate(-50%, -50%);
-            pointer-events: none;
         }
 
-        /* Overlay oscuro */
         .overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0, 0, 0, 0.3);
             z-index: 0;
-            transition: background 0.5s ease;
         }
 
-        .overlay.light {
-            background: rgba(0, 0, 0, 0.2);
-        }
-
-        /* Container principal */
-        .main-container {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        /* Logo/Título */
-        .logo {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .logo h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            color: #fff;
-            text-shadow: 2px 2px 20px rgba(0,0,0,0.5);
-            margin-bottom: 10px;
-        }
-
-        .logo p {
-            color: rgba(255,255,255,0.7);
-            font-size: 1.1rem;
-            font-weight: 300;
-        }
-
-        /* Panel de control */
-        .control-panel {
+        /* Glassmorphism Panel */
+        .glass-panel {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 40px;
-            width: 100%;
-            max-width: 600px;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
 
-        /* Input del URL */
-        .url-input-container {
-            position: relative;
-            margin-bottom: 25px;
-        }
-
-        .url-input-container i {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: rgba(255,255,255,0.5);
-            font-size: 1.2rem;
-        }
-
-        #youtube-url {
-            width: 100%;
-            padding: 18px 20px 18px 55px;
-            font-size: 1rem;
-            border: 2px solid rgba(255,255,255,0.1);
-            border-radius: 16px;
-            background: rgba(0,0,0,0.3);
-            color: #fff;
-            font-family: 'Poppins', sans-serif;
-            transition: all 0.3s ease;
-        }
-
-        #youtube-url:focus {
-            outline: none;
-            border-color: #ff6b6b;
-            box-shadow: 0 0 20px rgba(255,107,107,0.3);
-        }
-
-        #youtube-url::placeholder {
-            color: rgba(255,255,255,0.4);
-        }
-
-        /* Botón de reproducir */
-        .play-btn {
-            width: 100%;
-            padding: 18px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            border: none;
-            border-radius: 16px;
-            background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
-            color: #fff;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: 'Poppins', sans-serif;
+        /* Toggle Controls */
+        .toggle-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
             display: flex;
-            align-items: center;
-            justify-content: center;
             gap: 10px;
-        }
-
-        .play-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(255,107,107,0.4);
-        }
-
-        .play-btn:active {
-            transform: translateY(0);
-        }
-
-        /* Controles adicionales */
-        .controls {
-            display: flex;
-            gap: 15px;
-            margin-top: 25px;
             flex-wrap: wrap;
+            max-width: 300px;
+            justify-content: flex-end;
         }
 
-        .control-btn {
-            flex: 1;
-            min-width: 120px;
-            padding: 14px 20px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            border: 2px solid rgba(255,255,255,0.2);
-            border-radius: 12px;
-            background: rgba(255,255,255,0.05);
-            color: #fff;
+        .toggle-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: 'Poppins', sans-serif;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .control-btn:hover {
-            background: rgba(255,255,255,0.15);
-            border-color: rgba(255,255,255,0.3);
+        .toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.1);
         }
 
-        .control-btn.active {
-            background: rgba(255,107,107,0.3);
-            border-color: #ff6b6b;
+        .toggle-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
         }
 
-        .control-btn i {
-            font-size: 1rem;
+        /* Pomodoro Timer */
+        .pomodoro-container {
+            position: fixed;
+            top: 50%;
+            left: 50px;
+            transform: translateY(-50%);
+            z-index: 100;
+            transition: all 0.5s ease;
         }
 
-        /* Control de volumen */
-        .volume-control {
-            margin-top: 25px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
+        .pomodoro-container.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-50%) translateX(-50px);
         }
 
-        .volume-control i {
-            color: rgba(255,255,255,0.7);
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: color 0.3s ease;
+        .pomodoro-panel {
+            padding: 30px;
+            min-width: 280px;
+            text-align: center;
         }
 
-        .volume-control i:hover {
-            color: #fff;
-        }
-
-        #volume-slider {
-            flex: 1;
-            -webkit-appearance: none;
-            appearance: none;
-            height: 6px;
-            border-radius: 3px;
-            background: rgba(255,255,255,0.2);
-            outline: none;
-            cursor: pointer;
-        }
-
-        #volume-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: #ff6b6b;
-            cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-
-        #volume-slider::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-        }
-
-        #volume-slider::-moz-range-thumb {
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: #ff6b6b;
-            cursor: pointer;
-            border: none;
-        }
-
-        .volume-value {
-            color: rgba(255,255,255,0.7);
-            font-size: 0.9rem;
-            min-width: 45px;
-            text-align: right;
-        }
-
-        /* Control de oscuridad del overlay */
-        .overlay-control {
-            margin-top: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .overlay-control label {
-            color: rgba(255,255,255,0.7);
-            font-size: 0.9rem;
-        }
-
-        #overlay-slider {
-            flex: 1;
-            -webkit-appearance: none;
-            appearance: none;
-            height: 6px;
-            border-radius: 3px;
-            background: rgba(255,255,255,0.2);
-            outline: none;
-            cursor: pointer;
-        }
-
-        #overlay-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: #4ecdc4;
-            cursor: pointer;
-        }
-
-        #overlay-slider::-moz-range-thumb {
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: #4ecdc4;
-            cursor: pointer;
-            border: none;
-        }
-
-        /* Estado actual */
-        .now-playing {
-            margin-top: 25px;
-            padding: 15px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 12px;
-            display: none;
-        }
-
-        .now-playing.active {
-            display: block;
-        }
-
-        .now-playing-label {
-            color: #ff6b6b;
-            font-size: 0.8rem;
-            font-weight: 600;
+        .pomodoro-title {
+            font-size: 14px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 5px;
-        }
-
-        .now-playing-title {
-            color: #fff;
-            font-size: 1rem;
-            font-weight: 500;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* Historial */
-        .history-section {
-            margin-top: 25px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        .history-section::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .history-section::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.1);
-            border-radius: 3px;
-        }
-
-        .history-section::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.3);
-            border-radius: 3px;
-        }
-
-        .history-title {
-            color: rgba(255,255,255,0.5);
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
+            opacity: 0.8;
             margin-bottom: 10px;
         }
 
-        .history-item {
-            padding: 10px 15px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 8px;
-            margin-bottom: 8px;
+        .timer-display {
+            font-size: 64px;
+            font-weight: 300;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            margin: 20px 0;
+        }
+
+        .timer-mode {
+            font-size: 16px;
+            opacity: 0.7;
+            margin-bottom: 20px;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .timer-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
             cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
             transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .timer-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .timer-btn.primary {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .timer-settings {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .time-input-group {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 10px;
         }
 
-        .history-item:hover {
-            background: rgba(255,255,255,0.1);
+        .time-input-group label {
+            font-size: 12px;
+            opacity: 0.8;
         }
 
-        .history-item i {
-            color: #ff6b6b;
+        .time-input-group input {
+            width: 60px;
+            padding: 8px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
         }
 
-        .history-item span {
-            color: rgba(255,255,255,0.8);
-            font-size: 0.85rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        .loop-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+        }
+
+        /* Goals Panel */
+        .goals-container {
+            position: fixed;
+            top: 50%;
+            right: 50px;
+            transform: translateY(-50%);
+            z-index: 100;
+            transition: all 0.5s ease;
+        }
+
+        .goals-container.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-50%) translateX(50px);
+        }
+
+        .goals-panel {
+            padding: 25px;
+            width: 300px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .goals-panel::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .goals-panel::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+        }
+
+        .goals-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .goals-title {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .add-goal-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .add-goal-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .goal-input-container {
+            display: none;
+            margin-bottom: 15px;
+        }
+
+        .goal-input-container.active {
+            display: flex;
+            gap: 10px;
+        }
+
+        .goal-input {
             flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-family: 'Poppins', sans-serif;
         }
 
-        .history-item .delete-history {
-            color: rgba(255,255,255,0.3);
+        .goal-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .goal-submit {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .goal-submit:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .goals-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .goal-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .goal-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .goal-checkbox {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .goal-checkbox.completed {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .goal-checkbox i {
+            font-size: 12px;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .goal-checkbox.completed i {
+            opacity: 1;
+        }
+
+        .goal-text {
+            flex: 1;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .goal-item.completed .goal-text {
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+
+        .goal-delete {
+            opacity: 0;
+            background: none;
+            border: none;
+            color: white;
             cursor: pointer;
             padding: 5px;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
         }
 
-        .history-item .delete-history:hover {
-            color: #ff6b6b;
+        .goal-item:hover .goal-delete {
+            opacity: 0.7;
         }
 
-        /* Mensaje de error */
-        .error-message {
-            color: #ff6b6b;
-            font-size: 0.85rem;
-            margin-top: 10px;
+        .goal-delete:hover {
+            opacity: 1 !important;
+        }
+
+        /* Background Selector */
+        .background-selector {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            transition: all 0.5s ease;
+        }
+
+        .background-selector.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateX(-50%) translateY(50px);
+        }
+
+        .bg-panel {
+            padding: 20px;
+            max-width: 600px;
+        }
+
+        .bg-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .bg-tab {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .bg-tab:hover, .bg-tab.active {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .bg-content {
             display: none;
         }
 
-        .error-message.show {
+        .bg-content.active {
             display: block;
         }
 
-        /* Botón de ocultar panel */
-        .hide-panel-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: #fff;
+        .bg-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .bg-item {
+            width: 100%;
+            aspect-ratio: 16/9;
+            border-radius: 12px;
+            overflow: hidden;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
+            border: 2px solid transparent;
             transition: all 0.3s ease;
-            z-index: 100;
         }
 
-        .hide-panel-btn:hover {
-            background: rgba(255,255,255,0.2);
-            transform: scale(1.1);
+        .bg-item:hover {
+            transform: scale(1.05);
+            border-color: rgba(255, 255, 255, 0.5);
         }
 
-        /* Panel oculto */
-        .control-panel.hidden {
-            transform: translateY(20px);
-            opacity: 0;
-            pointer-events: none;
+        .bg-item.active {
+            border-color: white;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
         }
 
-        .logo.hidden {
-            opacity: 0;
-            pointer-events: none;
+        .bg-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
-        /* Mini controles cuando está oculto */
-        .mini-controls {
-            position: fixed;
-            bottom: 30px;
-            left: 30px;
+        .youtube-input-container {
             display: flex;
             gap: 10px;
-            opacity: 0;
-            pointer-events: none;
+            margin-bottom: 15px;
+        }
+
+        .youtube-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .youtube-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .youtube-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
             transition: all 0.3s ease;
         }
 
-        .mini-controls.show {
-            opacity: 1;
-            pointer-events: all;
+        .youtube-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
 
-        .mini-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: #fff;
-            cursor: pointer;
+        .volume-control {
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 1rem;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .volume-control label {
+            font-size: 12px;
+            opacity: 0.8;
+            white-space: nowrap;
+        }
+
+        .volume-slider {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .custom-upload {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .upload-btn {
+            padding: 15px;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            text-align: center;
             transition: all 0.3s ease;
         }
 
-        .mini-btn:hover {
-            background: rgba(255,255,255,0.2);
-            transform: scale(1.1);
+        .upload-btn:hover {
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.1);
         }
 
-        .mini-btn.active {
-            background: rgba(255,107,107,0.3);
-            border-color: #ff6b6b;
+        .custom-bg-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
         }
 
-        /* Reloj */
-        .clock {
+        .custom-bg-item {
+            position: relative;
+        }
+
+        .custom-bg-item .delete-custom {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .custom-bg-item:hover .delete-custom {
+            opacity: 1;
+        }
+
+        /* Motivational Quote */
+        .quote-container {
             position: fixed;
-            top: 30px;
-            right: 30px;
-            color: rgba(255,255,255,0.8);
-            font-size: 1.5rem;
+            bottom: 150px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 50;
+            text-align: center;
+            max-width: 600px;
+            padding: 0 20px;
+            transition: all 0.5s ease;
+        }
+
+        .quote-container.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .quote-text {
+            font-size: 24px;
             font-weight: 300;
-            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        .quote-author {
+            margin-top: 15px;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        /* Ambient Sound Player */
+        .ambient-container {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
             z-index: 100;
+            transition: all 0.5s ease;
+        }
+
+        .ambient-container.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateX(-50px);
+        }
+
+        .ambient-panel {
+            padding: 20px;
+            width: 280px;
+        }
+
+        .ambient-title {
+            font-size: 14px;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        .sound-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .sound-item {
+            padding: 15px 10px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            font-size: 12px;
+        }
+
+        .sound-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .sound-item.active {
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+
+        .sound-item i {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .ambient-volume {
+            margin-top: 15px;
+        }
+
+        /* Toggle Switch */
+        .switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.2);
+            transition: 0.4s;
+            border-radius: 26px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Fullscreen Button */
+        .fullscreen-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            opacity: 0.6;
+        }
+
+        .empty-state i {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
         }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .logo h1 {
-                font-size: 2rem;
+            .pomodoro-container {
+                left: 20px;
+                top: 100px;
+                transform: none;
             }
 
-            .control-panel {
-                padding: 25px;
-            }
-
-            .controls {
-                flex-direction: column;
-            }
-
-            .control-btn {
-                min-width: 100%;
-            }
-
-            .clock {
-                font-size: 1.2rem;
-                top: 20px;
+            .goals-container {
                 right: 20px;
+                top: auto;
+                bottom: 200px;
+                transform: none;
+            }
+
+            .goals-panel {
+                width: 260px;
+                max-height: 300px;
+            }
+
+            .bg-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .toggle-controls {
+                top: 10px;
+                right: 10px;
+            }
+
+            .quote-container {
+                bottom: 250px;
             }
         }
 
-        /* Animación de entrada */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .control-panel, .logo {
-            animation: fadeInUp 0.8s ease;
-        }
-
-        /* Visualizador de audio simple */
-        .audio-visualizer {
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            gap: 4px;
-            height: 30px;
-            margin-top: 20px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .audio-visualizer.active {
-            opacity: 1;
-        }
-
-        .bar {
-            width: 4px;
-            background: linear-gradient(to top, #ff6b6b, #4ecdc4);
-            border-radius: 2px;
-            animation: bounce 0.5s ease infinite alternate;
-        }
-
-        .bar:nth-child(1) { height: 10px; animation-delay: 0s; }
-        .bar:nth-child(2) { height: 20px; animation-delay: 0.1s; }
-        .bar:nth-child(3) { height: 15px; animation-delay: 0.2s; }
-        .bar:nth-child(4) { height: 25px; animation-delay: 0.3s; }
-        .bar:nth-child(5) { height: 10px; animation-delay: 0.4s; }
-        .bar:nth-child(6) { height: 20px; animation-delay: 0.2s; }
-        .bar:nth-child(7) { height: 15px; animation-delay: 0.1s; }
-
-        @keyframes bounce {
-            to {
-                height: 30px;
-            }
-        }
-
-        .audio-visualizer:not(.playing) .bar {
-            animation-play-state: paused;
+        .animate-in {
+            animation: fadeIn 0.5s ease forwards;
         }
     </style>
 </head>
 <body>
-    <!-- Video Background -->
-    <div id="video-background"></div>
-    
-    <!-- Overlay -->
-    <div class="overlay" id="overlay"></div>
-    
-    <!-- Reloj -->
-    <div class="clock" id="clock">00:00</div>
-    
-    <!-- Container Principal -->
-    <div class="main-container">
-        <div class="logo" id="logo">
-            <h1>🎵 Mi Espacio</h1>
-            <p>Tu música de fondo personal</p>
-        </div>
-        
-        <div class="control-panel" id="control-panel">
-            <!-- Input URL -->
-            <div class="url-input-container">
-                <i class="fab fa-youtube"></i>
-                <input 
-                    type="text" 
-                    id="youtube-url" 
-                    placeholder="Pega aquí el link de YouTube..."
-                    autocomplete="off"
-                >
-            </div>
-            
-            <!-- Mensaje de error -->
-            <div class="error-message" id="error-message">
-                <i class="fas fa-exclamation-circle"></i> Por favor, ingresa un link válido de YouTube
-            </div>
-            
-            <!-- Botón Play -->
-            <button class="play-btn" id="play-btn">
-                <i class="fas fa-play"></i>
-                Reproducir
-            </button>
-            
-            <!-- Controles -->
-            <div class="controls">
-                <button class="control-btn" id="pause-btn">
-                    <i class="fas fa-pause"></i>
-                    Pausar
-                </button>
-                <button class="control-btn active" id="loop-btn">
-                    <i class="fas fa-redo"></i>
-                    Bucle
-                </button>
-                <button class="control-btn" id="stop-btn">
-                    <i class="fas fa-stop"></i>
-                    Detener
-                </button>
-            </div>
-            
-            <!-- Control de Volumen -->
-            <div class="volume-control">
-                <i class="fas fa-volume-up" id="volume-icon"></i>
-                <input type="range" id="volume-slider" min="0" max="100" value="50">
-                <span class="volume-value" id="volume-value">50%</span>
-            </div>
-            
-            <!-- Control de Oscuridad -->
-            <div class="overlay-control">
-                <label><i class="fas fa-adjust"></i> Oscuridad</label>
-                <input type="range" id="overlay-slider" min="0" max="80" value="40">
-            </div>
-            
-            <!-- Visualizador -->
-            <div class="audio-visualizer" id="visualizer">
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-            </div>
-            
-            <!-- Now Playing -->
-            <div class="now-playing" id="now-playing">
-                <div class="now-playing-label">
-                    <i class="fas fa-music"></i> Reproduciendo ahora
-                </div>
-                <div class="now-playing-title" id="now-playing-title">-</div>
-            </div>
-            
-            <!-- Historial -->
-            <div class="history-section" id="history-section">
-                <div class="history-title">
-                    <i class="fas fa-history"></i> Historial reciente
-                </div>
-                <div id="history-list"></div>
-            </div>
-        </div>
+    <!-- Background Container -->
+    <div class="background-container">
+        <img src="https://media.giphy.com/media/l0MYB8Ory7Hqefo9a/giphy.gif" alt="Background" class="background-image" id="backgroundImage">
+        <div class="youtube-background" id="youtubeBackground"></div>
     </div>
-    
-    <!-- Mini controles -->
-    <div class="mini-controls" id="mini-controls">
-        <button class="mini-btn" id="mini-pause">
-            <i class="fas fa-pause"></i>
-        </button>
-        <button class="mini-btn active" id="mini-loop">
-            <i class="fas fa-redo"></i>
-        </button>
-    </div>
-    
-    <!-- Botón ocultar panel -->
-    <button class="hide-panel-btn" id="hide-panel-btn">
-        <i class="fas fa-eye"></i>
-    </button>
+    <div class="overlay"></div>
 
-    <!-- YouTube API -->
-    <script src="https://www.youtube.com/iframe_api"></script>
-    
+    <!-- Toggle Controls -->
+    <div class="toggle-controls">
+        <button class="toggle-btn active" id="toggleTimer" title="Toggle Timer">
+            <i class="fas fa-clock"></i>
+        </button>
+        <button class="toggle-btn active" id="toggleGoals" title="Toggle Goals">
+            <i class="fas fa-list-check"></i>
+        </button>
+        <button class="toggle-btn active" id="toggleBg" title="Toggle Background Selector">
+            <i class="fas fa-image"></i>
+        </button>
+        <button class="toggle-btn active" id="toggleQuote" title="Toggle Quote">
+            <i class="fas fa-quote-right"></i>
+        </button>
+        <button class="toggle-btn active" id="toggleAmbient" title="Toggle Ambient Sounds">
+            <i class="fas fa-music"></i>
+        </button>
+        <button class="toggle-btn" id="fullscreenBtn" title="Fullscreen">
+            <i class="fas fa-expand"></i>
+        </button>
+    </div>
+
+    <!-- Pomodoro Timer -->
+    <div class="pomodoro-container" id="pomodoroContainer">
+        <div class="pomodoro-panel glass-panel">
+            <div class="pomodoro-title">Pomodoro Timer</div>
+            <div class="timer-display" id="timerDisplay">25:00</div>
+            <div class="timer-mode" id="timerMode">Focus Time</div>
+            <div class="timer-controls">
+                <button class="timer-btn primary" id="startBtn">
+                    <i class="fas fa-play"></i> Start
+                </button>
+                <button class="timer-btn" id="resetBtn">
+                    <i class="fas fa-redo"></i> Reset
+                </button>
+            </div>
+            <div class="timer-settings">
+                <div class="time-input-group">
+                    <label>Focus (min)</label>
+                    <input type="number" id="focusTime" value="25" min="1" max="120">
+                </div>
+                <div class="time-input-group">
+                    <label>Break (min)</label>
+                    <input type="number" id="breakTime" value="5" min="1" max="60">
+                </div>
+                <div class="loop-toggle">
+                    <span>Loop automatically</span>
+                    <label class="switch">
+                        <input type="checkbox" id="loopToggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Session Goals -->
+    <div class="goals-container" id="goalsContainer">
+        <div class="goals-panel glass-panel">
+            <div class="goals-header">
+                <span class="goals-title">📝 Today's Goals</span>
+                <button class="add-goal-btn" id="addGoalBtn">+</button>
+            </div>
+            <div class="goal-input-container" id="goalInputContainer">
+                <input type="text" class="goal-input" id="goalInput" placeholder="Add a new goal...">
+                <button class="goal-submit" id="goalSubmit">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+            <div class="goals-list" id="goalsList">
+                <!-- Goals will be added here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Background Selector -->
+    <div class="background-selector" id="backgroundSelector">
+        <div class="bg-panel glass-panel">
+            <div class="bg-tabs">
+                <button class="bg-tab active" data-tab="presets">Presets</button>
+                <button class="bg-tab" data-tab="youtube">YouTube</button>
+                <button class="bg-tab" data-tab="custom">Custom</button>
+            </div>
+            <div class="bg-content active" id="presets">
+                <div class="bg-grid">
+                    <div class="bg-item active" data-bg="https://media.giphy.com/media/l0MYB8Ory7Hqefo9a/giphy.gif">
+                        <img src="https://media.giphy.com/media/l0MYB8Ory7Hqefo9a/giphy.gif" alt="Anime City">
+                    </div>
+                    <div class="bg-item" data-bg="https://media.giphy.com/media/3o6ZsVbs2GzgKNvVpS/giphy.gif">
+                        <img src="https://media.giphy.com/media/3o6ZsVbs2GzgKNvVpS/giphy.gif" alt="Rain">
+                    </div>
+                    <div class="bg-item" data-bg="https://media.giphy.com/media/xT9IgG50Fb7Mi0prBC/giphy.gif">
+                        <img src="https://media.giphy.com/media/xT9IgG50Fb7Mi0prBC/giphy.gif" alt="Nature">
+                    </div>
+                    <div class="bg-item" data-bg="https://media.giphy.com/media/demgpwJ6rs2DS/giphy.gif">
+                        <img src="https://media.giphy.com/media/demgpwJ6rs2DS/giphy.gif" alt="Cafe">
+                    </div>
+                    <div class="bg-item" data-bg="https://media.giphy.com/media/l4FGni1RBAR2OWsGk/giphy.gif">
+                        <img src="https://media.giphy.com/media/l4FGni1RBAR2OWsGk/giphy.gif" alt="Lofi">
+                    </div>
+                    <div class="bg-item" data-bg="https://media.giphy.com/media/26BROrSHlmyzzHf3i/giphy.gif">
+                        <img src="https://media.giphy.com/media/26BROrSHlmyzzHf3i/giphy.gif" alt="Stars">
+                    </div>
+                    <div class="bg-item" data-bg="https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif">
+                        <img src="https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif" alt="Aurora">
+                    </div>
+                    <div class="bg-item" data-bg="https://media.giphy.com/media/5xtDarqlsEW6F7F14Fq/giphy.gif">
+                        <img src="https://media.giphy.com/media/5xtDarqlsEW6F7F14Fq/giphy.gif" alt="Ocean">
+                    </div>
+                </div>
+            </div>
+            <div class="bg-content" id="youtube">
+                <div class="youtube-input-container">
+                    <input type="text" class="youtube-input" id="youtubeUrl" placeholder="Paste YouTube URL...">
+                    <button class="youtube-btn" id="setYoutubeBtn">Set</button>
+                </div>
+                <div class="volume-control">
+                    <label><i class="fas fa-volume-up"></i> Video Sound</label>
+                    <input type="range" class="volume-slider" id="youtubeVolume" min="0" max="100" value="50">
+                </div>
+                <button class="youtube-btn" id="clearYoutubeBtn" style="margin-top: 10px; width: 100%;">
+                    <i class="fas fa-times"></i> Clear YouTube Background
+                </button>
+            </div>
+            <div class="bg-content" id="custom">
+                <div class="custom-upload">
+                    <label class="upload-btn" for="customBgUpload">
+                        <i class="fas fa-cloud-upload-alt"></i><br>
+                        Click to upload image or GIF
+                    </label>
+                    <input type="file" id="customBgUpload" accept="image/*" style="display: none;">
+                    <div class="custom-bg-grid" id="customBgGrid">
+                        <!-- Custom backgrounds will be added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Motivational Quote -->
+    <div class="quote-container" id="quoteContainer">
+        <p class="quote-text" id="quoteText">"The secret of getting ahead is getting started."</p>
+        <p class="quote-author" id="quoteAuthor">— Mark Twain</p>
+    </div>
+
+    <!-- Ambient Sound Player -->
+    <div class="ambient-container" id="ambientContainer">
+        <div class="ambient-panel glass-panel">
+            <div class="ambient-title">🎵 Ambient Sounds</div>
+            <div class="sound-grid">
+                <button class="sound-item" data-sound="rain">
+                    <i class="fas fa-cloud-rain"></i>
+                    Rain
+                </button>
+                <button class="sound-item" data-sound="forest">
+                    <i class="fas fa-tree"></i>
+                    Forest
+                </button>
+                <button class="sound-item" data-sound="cafe">
+                    <i class="fas fa-coffee"></i>
+                    Cafe
+                </button>
+                <button class="sound-item" data-sound="ocean">
+                    <i class="fas fa-water"></i>
+                    Ocean
+                </button>
+                <button class="sound-item" data-sound="fire">
+                    <i class="fas fa-fire"></i>
+                    Fireplace
+                </button>
+                <button class="sound-item" data-sound="wind">
+                    <i class="fas fa-wind"></i>
+                    Wind
+                </button>
+            </div>
+            <div class="volume-control ambient-volume">
+                <label><i class="fas fa-volume-up"></i> Volume</label>
+                <input type="range" class="volume-slider" id="ambientVolume" min="0" max="100" value="50">
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio Elements -->
+    <audio id="rainSound" loop>
+        <source src="https://soundbible.com/grab.php?id=2065&type=mp3" type="audio/mpeg">
+    </audio>
+    <audio id="forestSound" loop>
+        <source src="https://soundbible.com/grab.php?id=1818&type=mp3" type="audio/mpeg">
+    </audio>
+    <audio id="cafeSound" loop>
+        <source src="https://soundbible.com/grab.php?id=2083&type=mp3" type="audio/mpeg">
+    </audio>
+    <audio id="oceanSound" loop>
+        <source src="https://soundbible.com/grab.php?id=2032&type=mp3" type="audio/mpeg">
+    </audio>
+    <audio id="fireSound" loop>
+        <source src="https://soundbible.com/grab.php?id=1543&type=mp3" type="audio/mpeg">
+    </audio>
+    <audio id="windSound" loop>
+        <source src="https://soundbible.com/grab.php?id=2094&type=mp3" type="audio/mpeg">
+    </audio>
+    <audio id="alarmSound">
+        <source src="https://soundbible.com/grab.php?id=1746&type=mp3" type="audio/mpeg">
+    </audio>
+
     <script>
-        // Variables globales
-        let player = null;
-        let isLoop = true;
-        let isPanelHidden = false;
-        let isPlaying = false;
-        let currentVideoId = null;
-        let history = JSON.parse(localStorage.getItem('youtubeHistory')) || [];
+        // ============ POMODORO TIMER ============
+        let timerInterval = null;
+        let isRunning = false;
+        let isBreakTime = false;
+        let timeLeft = 25 * 60;
 
-        // Función para extraer ID del video
-        function extractVideoId(url) {
-            const patterns = [
-                /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/|youtube\.com\/shorts\/)([^&\n?#]+)/,
-                /^([a-zA-Z0-9_-]{11})$/
-            ];
-            
-            for (let pattern of patterns) {
-                const match = url.match(pattern);
-                if (match) return match[1];
-            }
-            return null;
+        const timerDisplay = document.getElementById('timerDisplay');
+        const timerMode = document.getElementById('timerMode');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const focusTimeInput = document.getElementById('focusTime');
+        const breakTimeInput = document.getElementById('breakTime');
+        const loopToggle = document.getElementById('loopToggle');
+        const alarmSound = document.getElementById('alarmSound');
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.title = `${timerDisplay.textContent} - Study Habitat`;
         }
 
-        // Inicializar YouTube Player
-        function onYouTubeIframeAPIReady() {
-            console.log('YouTube API Ready');
-        }
-
-        function loadVideo(videoId) {
-            const container = document.getElementById('video-background');
-            
-            if (player) {
-                player.destroy();
-            }
-            
-            container.innerHTML = '<div id="youtube-player"></div>';
-            
-            player = new YT.Player('youtube-player', {
-                videoId: videoId,
-                playerVars: {
-                    autoplay: 1,
-                    controls: 0,
-                    disablekb: 1,
-                    fs: 0,
-                    iv_load_policy: 3,
-                    loop: isLoop ? 1 : 0,
-                    modestbranding: 1,
-                    playsinline: 1,
-                    rel: 0,
-                    showinfo: 0,
-                    mute: 0,
-                    playlist: isLoop ? videoId : ''
-                },
-                events: {
-                    onReady: onPlayerReady,
-                    onStateChange: onPlayerStateChange,
-                    onError: onPlayerError
-                }
-            });
-            
-            currentVideoId = videoId;
-        }
-
-        function onPlayerReady(event) {
-            const volume = document.getElementById('volume-slider').value;
-            event.target.setVolume(volume);
-            event.target.playVideo();
-            
-            isPlaying = true;
-            updatePlayingState();
-            
-            // Obtener título del video
-            fetchVideoTitle(currentVideoId);
-            
-            // Guardar en historial
-            addToHistory(currentVideoId);
-        }
-
-        function onPlayerStateChange(event) {
-            if (event.data === YT.PlayerState.ENDED) {
-                if (isLoop) {
-                    player.seekTo(0);
-                    player.playVideo();
-                }
-            }
-            
-            if (event.data === YT.PlayerState.PLAYING) {
-                isPlaying = true;
-                updatePlayingState();
-            } else if (event.data === YT.PlayerState.PAUSED) {
-                isPlaying = false;
-                updatePlayingState();
-            }
-        }
-
-        function onPlayerError(event) {
-            console.error('Error del reproductor:', event.data);
-            showError('Error al reproducir el video. Verifica el link.');
-        }
-
-        function updatePlayingState() {
-            const visualizer = document.getElementById('visualizer');
-            const pauseBtn = document.getElementById('pause-btn');
-            const miniPause = document.getElementById('mini-pause');
-            
-            if (isPlaying) {
-                visualizer.classList.add('active', 'playing');
-                pauseBtn.innerHTML = '<i class="fas fa-pause"></i> Pausar';
-                miniPause.innerHTML = '<i class="fas fa-pause"></i>';
+        function startTimer() {
+            if (isRunning) {
+                clearInterval(timerInterval);
+                isRunning = false;
+                startBtn.innerHTML = '<i class="fas fa-play"></i> Start';
             } else {
-                visualizer.classList.remove('playing');
-                pauseBtn.innerHTML = '<i class="fas fa-play"></i> Reanudar';
-                miniPause.innerHTML = '<i class="fas fa-play"></i>';
-            }
-        }
-
-        // Obtener título del video
-        async function fetchVideoTitle(videoId) {
-            try {
-                // Usando noembed como alternativa gratuita
-                const response = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`);
-                const data = await response.json();
-                
-                if (data.title) {
-                    document.getElementById('now-playing-title').textContent = data.title;
-                    document.getElementById('now-playing').classList.add('active');
-                }
-            } catch (error) {
-                document.getElementById('now-playing-title').textContent = `Video ID: ${videoId}`;
-                document.getElementById('now-playing').classList.add('active');
-            }
-        }
-
-        // Historial
-        function addToHistory(videoId) {
-            // Evitar duplicados
-            history = history.filter(item => item.id !== videoId);
-            
-            history.unshift({
-                id: videoId,
-                date: new Date().toISOString()
-            });
-            
-            // Mantener solo los últimos 10
-            history = history.slice(0, 10);
-            
-            localStorage.setItem('youtubeHistory', JSON.stringify(history));
-            renderHistory();
-        }
-
-        function renderHistory() {
-            const container = document.getElementById('history-list');
-            container.innerHTML = '';
-            
-            history.forEach((item, index) => {
-                const div = document.createElement('div');
-                div.className = 'history-item';
-                div.innerHTML = `
-                    <i class="fas fa-play-circle"></i>
-                    <span>youtube.com/watch?v=${item.id}</span>
-                    <i class="fas fa-times delete-history" data-index="${index}"></i>
-                `;
-                
-                div.addEventListener('click', (e) => {
-                    if (!e.target.classList.contains('delete-history')) {
-                        document.getElementById('youtube-url').value = `https://www.youtube.com/watch?v=${item.id}`;
-                        loadVideo(item.id);
+                isRunning = true;
+                startBtn.innerHTML = '<i class="fas fa-pause"></i> Pause';
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    updateTimerDisplay();
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        alarmSound.play();
+                        if (loopToggle.checked) {
+                            isBreakTime = !isBreakTime;
+                            timeLeft = isBreakTime ? breakTimeInput.value * 60 : focusTimeInput.value * 60;
+                            timerMode.textContent = isBreakTime ? '☕ Break Time' : '📚 Focus Time';
+                            startTimer();
+                        } else {
+                            isRunning = false;
+                            startBtn.innerHTML = '<i class="fas fa-play"></i> Start';
+                        }
                     }
-                });
-                
-                container.appendChild(div);
-            });
-            
-            // Eventos para eliminar
-            document.querySelectorAll('.delete-history').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const index = parseInt(e.target.dataset.index);
-                    history.splice(index, 1);
-                    localStorage.setItem('youtubeHistory', JSON.stringify(history));
-                    renderHistory();
-                });
-            });
-        }
-
-        function showError(message) {
-            const errorEl = document.getElementById('error-message');
-            errorEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
-            errorEl.classList.add('show');
-            setTimeout(() => errorEl.classList.remove('show'), 3000);
-        }
-
-        // Event Listeners
-        document.getElementById('play-btn').addEventListener('click', () => {
-            const url = document.getElementById('youtube-url').value.trim();
-            const videoId = extractVideoId(url);
-            
-            if (videoId) {
-                document.getElementById('error-message').classList.remove('show');
-                loadVideo(videoId);
-            } else {
-                showError('Por favor, ingresa un link válido de YouTube');
-            }
-        });
-
-        document.getElementById('youtube-url').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                document.getElementById('play-btn').click();
-            }
-        });
-
-        document.getElementById('pause-btn').addEventListener('click', () => {
-            if (player) {
-                if (isPlaying) {
-                    player.pauseVideo();
-                } else {
-                    player.playVideo();
-                }
-            }
-        });
-
-        document.getElementById('mini-pause').addEventListener('click', () => {
-            if (player) {
-                if (isPlaying) {
-                    player.pauseVideo();
-                } else {
-                    player.playVideo();
-                }
-            }
-        });
-
-        document.getElementById('loop-btn').addEventListener('click', function() {
-            isLoop = !isLoop;
-            this.classList.toggle('active', isLoop);
-            document.getElementById('mini-loop').classList.toggle('active', isLoop);
-            
-            if (player && currentVideoId) {
-                // Recargar con nueva configuración de loop
-                const currentTime = player.getCurrentTime();
-                loadVideo(currentVideoId);
-                setTimeout(() => {
-                    if (player) player.seekTo(currentTime);
                 }, 1000);
             }
-        });
-
-        document.getElementById('mini-loop').addEventListener('click', () => {
-            document.getElementById('loop-btn').click();
-        });
-
-        document.getElementById('stop-btn').addEventListener('click', () => {
-            if (player) {
-                player.stopVideo();
-                isPlaying = false;
-                updatePlayingState();
-                document.getElementById('visualizer').classList.remove('active');
-                document.getElementById('now-playing').classList.remove('active');
-            }
-        });
-
-        document.getElementById('volume-slider').addEventListener('input', function() {
-            const volume = this.value;
-            document.getElementById('volume-value').textContent = volume + '%';
-            
-            const icon = document.getElementById('volume-icon');
-            if (volume == 0) {
-                icon.className = 'fas fa-volume-mute';
-            } else if (volume < 50) {
-                icon.className = 'fas fa-volume-down';
-            } else {
-                icon.className = 'fas fa-volume-up';
-            }
-            
-            if (player) {
-                player.setVolume(volume);
-            }
-        });
-
-        document.getElementById('volume-icon').addEventListener('click', () => {
-            const slider = document.getElementById('volume-slider');
-            if (slider.value > 0) {
-                slider.dataset.previousVolume = slider.value;
-                slider.value = 0;
-            } else {
-                slider.value = slider.dataset.previousVolume || 50;
-            }
-            slider.dispatchEvent(new Event('input'));
-        });
-
-        document.getElementById('overlay-slider').addEventListener('input', function() {
-            const opacity = this.value / 100;
-            document.getElementById('overlay').style.background = `rgba(0, 0, 0, ${opacity})`;
-        });
-
-        document.getElementById('hide-panel-btn').addEventListener('click', function() {
-            isPanelHidden = !isPanelHidden;
-            
-            document.getElementById('control-panel').classList.toggle('hidden', isPanelHidden);
-            document.getElementById('logo').classList.toggle('hidden', isPanelHidden);
-            document.getElementById('mini-controls').classList.toggle('show', isPanelHidden);
-            
-            this.innerHTML = isPanelHidden 
-                ? '<i class="fas fa-eye-slash"></i>' 
-                : '<i class="fas fa-eye"></i>';
-        });
-
-        // Reloj
-        function updateClock() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('clock').textContent = `${hours}:${minutes}`;
         }
-        
-        setInterval(updateClock, 1000);
-        updateClock();
 
-        // Inicializar historial
-        renderHistory();
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            isBreakTime = false;
+            timeLeft = focusTimeInput.value * 60;
+            timerMode.textContent = '📚 Focus Time';
+            startBtn.innerHTML = '<i class="fas fa-play"></i> Start';
+            updateTimerDisplay();
+        }
 
-        // Atajos de teclado
-        document.addEventListener('keydown', (e) => {
-            if (e.target.tagName === 'INPUT') return;
-            
-            switch(e.code) {
-                case 'Space':
-                    e.preventDefault();
-                    document.getElementById('pause-btn').click();
-                    break;
-                case 'KeyM':
-                    document.getElementById('volume-icon').click();
-                    break;
-                case 'KeyH':
-                    document.getElementById('hide-panel-btn').click();
-                    break;
-                case 'KeyL':
-                    document.getElementById('loop-btn').click();
-                    break;
+        startBtn.addEventListener('click', startTimer);
+        resetBtn.addEventListener('click', resetTimer);
+        focusTimeInput.addEventListener('change', () => {
+            if (!isRunning && !isBreakTime) {
+                timeLeft = focusTimeInput.value * 60;
+                updateTimerDisplay();
             }
+        });
+
+        // ============ SESSION GOALS ============
+        const goalsList = document.getElementById('goalsList');
+        const addGoalBtn = document.getElementById('addGoalBtn');
+        const goalInputContainer = document.getElementById('goalInputContainer');
+        const goalInput = document.getElementById('goalInput');
+        const goalSubmit = document.getElementById('goalSubmit');
+
+        let goals = JSON.parse(localStorage.getItem('studyGoals')) || [];
+
+        function saveGoals() {
+            localStorage.setItem('studyGoals', JSON.stringify(goals));
+        }
+
+        function renderGoals() {
+            if (goals.length === 0) {
+                goalsList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-clipboard-list"></i>
+                        <p>No goals yet. Add one!</p>
+                    </div>
+                `;
+                return;
+            }
+            goalsList.innerHTML = goals.map((goal, index) => `
+                <div class="goal-item ${goal.completed ? 'completed' : ''}" data-index="${index}">
+                    <div class="goal-checkbox ${goal.completed ? 'completed' : ''}" onclick="toggleGoal(${index})">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <span class="goal-text">${goal.text}</span>
+                    <button class="goal-delete" onclick="deleteGoal(${index})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function addGoal() {
+            const text = goalInput.value.trim();
+            if (text) {
+                goals.push({ text, completed: false });
+                saveGoals();
+                renderGoals();
+                goalInput.value = '';
+                goalInputContainer.classList.remove('active');
+            }
+        }
+
+        window.toggleGoal = function(index) {
+            goals[index].completed = !goals[index].completed;
+            saveGoals();
+            renderGoals();
+        };
+
+        window.deleteGoal = function(index) {
+            goals.splice(index, 1);
+            saveGoals();
+            renderGoals();
+        };
+
+        addGoalBtn.addEventListener('click', () => {
+            goalInputContainer.classList.toggle('active');
+            if (goalInputContainer.classList.contains('active')) {
+                goalInput.focus();
+            }
+        });
+
+        goalSubmit.addEventListener('click', addGoal);
+        goalInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addGoal();
+        });
+
+        renderGoals();
+
+        // ============ BACKGROUND SELECTOR ============
+        const backgroundImage = document.getElementById('backgroundImage');
+        const youtubeBackground = document.getElementById('youtubeBackground');
+        const bgTabs = document.querySelectorAll('.bg-tab');
+        const bgContents = document.querySelectorAll('.bg-content');
+        const bgItems = document.querySelectorAll('.bg-item');
+        const youtubeUrl = document.getElementById('youtubeUrl');
+        const setYoutubeBtn = document.getElementById('setYoutubeBtn');
+        const clearYoutubeBtn = document.getElementById('clearYoutubeBtn');
+        const youtubeVolume = document.getElementById('youtubeVolume');
+        const customBgUpload = document.getElementById('customBgUpload');
+        const customBgGrid = document.getElementById('customBgGrid');
+
+        let customBackgrounds = JSON.parse(localStorage.getItem('customBackgrounds')) || [];
+        let youtubePlayer = null;
+
+        bgTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                bgTabs.forEach(t => t.classList.remove('active'));
+                bgContents.forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+            });
+        });
+
+        bgItems.forEach(item => {
+            item.addEventListener('click', () => {
+                bgItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                backgroundImage.src = item.dataset.bg;
+                backgroundImage.style.display = 'block';
+                youtubeBackground.style.display = 'none';
+                youtubeBackground.innerHTML = '';
+                localStorage.setItem('selectedBackground', item.dataset.bg);
+            });
+        });
+
+        function getYoutubeVideoId(url) {
+            const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+            const match = url.match(regex);
+            return match ? match[1] : null;
+        }
+
+        setYoutubeBtn.addEventListener('click', () => {
+            const videoId = getYoutubeVideoId(youtubeUrl.value);
+            if (videoId) {
+                backgroundImage.style.display = 'none';
+                youtubeBackground.style.display = 'block';
+                youtubeBackground.innerHTML = `
+                    <iframe 
+                        id="youtubeIframe"
+                        src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&modestbranding=1&enablejsapi=1"
+                        frameborder="0"
+                        allow="autoplay; encrypted-media"
+                        allowfullscreen>
+                    </iframe>
+                `;
+                localStorage.setItem('youtubeBackground', youtubeUrl.value);
+                bgItems.forEach(i => i.classList.remove('active'));
+            }
+        });
+
+        clearYoutubeBtn.addEventListener('click', () => {
+            youtubeBackground.style.display = 'none';
+            youtubeBackground.innerHTML = '';
+            backgroundImage.style.display = 'block';
+            localStorage.removeItem('youtubeBackground');
+            youtubeUrl.value = '';
+        });
+
+        // Custom background upload
+        customBgUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const dataUrl = event.target.result;
+                    customBackgrounds.push(dataUrl);
+                    localStorage.setItem('customBackgrounds', JSON.stringify(customBackgrounds));
+                    renderCustomBackgrounds();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function renderCustomBackgrounds() {
+            customBgGrid.innerHTML = customBackgrounds.map((bg, index) => `
+                <div class="bg-item custom-bg-item" data-custom-bg="${index}">
+                    <img src="${bg}" alt="Custom Background">
+                    <button class="delete-custom" onclick="deleteCustomBg(${index}); event.stopPropagation();">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `).join('');
+
+            document.querySelectorAll('[data-custom-bg]').forEach(item => {
+                item.addEventListener('click', () => {
+                    const index = parseInt(item.dataset.customBg);
+                    backgroundImage.src = customBackgrounds[index];
+                    backgroundImage.style.display = 'block';
+                    youtubeBackground.style.display = 'none';
+                    bgItems.forEach(i => i.classList.remove('active'));
+                });
+            });
+        }
+
+        window.deleteCustomBg = function(index) {
+            customBackgrounds.splice(index, 1);
+            localStorage.setItem('customBackgrounds', JSON.stringify(customBackgrounds));
+            renderCustomBackgrounds();
+        };
+
+        renderCustomBackgrounds();
+
+        // Load saved background
+        const savedBg = localStorage.getItem('selectedBackground');
+        const savedYoutube = localStorage.getItem('youtubeBackground');
+        if (savedYoutube) {
+            youtubeUrl.value = savedYoutube;
+            setYoutubeBtn.click();
+        } else if (savedBg) {
+            backgroundImage.src = savedBg;
+            bgItems.forEach(item => {
+                if (item.dataset.bg === savedBg) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        // ============ MOTIVATIONAL QUOTES ============
+        const quotes = [
+            { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
+            { text: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius" },
+            { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
+            { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+            { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+            { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+            { text: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson" },
+            { text: "Education is the most powerful weapon which you can use to change the world.", author: "Nelson Mandela" },
+            { text: "The more that you read, the more things you will know.", author: "Dr. Seuss" },
+            { text: "Start where you are. Use what you have. Do what you can.", author: "Arthur Ashe" }
+        ];
+
+        const quoteText = document.getElementById('quoteText');
+        const quoteAuthor = document.getElementById('quoteAuthor');
+
+        function showRandomQuote() {
+            const quote = quotes[Math.floor(Math.random() * quotes.length)];
+            quoteText.textContent = `"${quote.text}"`;
+            quoteAuthor.textContent = `— ${quote.author}`;
+        }
+
+        showRandomQuote();
+        setInterval(showRandomQuote, 60000); // Change quote every minute
+
+        // ============ AMBIENT SOUNDS ============
+        const soundItems = document.querySelectorAll('.sound-item');
+        const ambientVolume = document.getElementById('ambientVolume');
+
+        const sounds = {
+            rain: document.getElementById('rainSound'),
+            forest: document.getElementById('forestSound'),
+            cafe: document.getElementById('cafeSound'),
+            ocean: document.getElementById('oceanSound'),
+            fire: document.getElementById('fireSound'),
+            wind: document.getElementById('windSound')
+        };
+
+        let currentSound = null;
+
+        soundItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const soundType = item.dataset.sound;
+                const sound = sounds[soundType];
+
+                if (currentSound === sound && !sound.paused) {
+                    sound.pause();
+                    item.classList.remove('active');
+                    currentSound = null;
+                } else {
+                    // Stop all sounds
+                    Object.values(sounds).forEach(s => s.pause());
+                    soundItems.forEach(i => i.classList.remove('active'));
+
+                    // Play selected sound
+                    sound.volume = ambientVolume.value / 100;
+                    sound.play().catch(e => console.log('Audio play failed:', e));
+                    item.classList.add('active');
+                    currentSound = sound;
+                }
+            });
+        });
+
+        ambientVolume.addEventListener('input', () => {
+            if (currentSound) {
+                currentSound.volume = ambientVolume.value / 100;
+            }
+        });
+
+        // ============ TOGGLE CONTROLS ============
+        const toggleTimer = document.getElementById('toggleTimer');
+        const toggleGoals = document.getElementById('toggleGoals');
+        const toggleBg = document.getElementById('toggleBg');
+        const toggleQuote = document.getElementById('toggleQuote');
+        const toggleAmbient = document.getElementById('toggleAmbient');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+        const pomodoroContainer = document.getElementById('pomodoroContainer');
+        const goalsContainer = document.getElementById('goalsContainer');
+        const backgroundSelector = document.getElementById('backgroundSelector');
+        const quoteContainer = document.getElementById('quoteContainer');
+        const ambientContainer = document.getElementById('ambientContainer');
+
+        function createToggle(btn, container) {
+            btn.addEventListener('click', () => {
+                btn.classList.toggle('active');
+                container.classList.toggle('hidden');
+                localStorage.setItem(btn.id, btn.classList.contains('active'));
+            });
+
+            // Load saved state
+            const savedState = localStorage.getItem(btn.id);
+            if (savedState === 'false') {
+                btn.classList.remove('active');
+                container.classList.add('hidden');
+            }
+        }
+
+        createToggle(toggleTimer, pomodoroContainer);
+        createToggle(toggleGoals, goalsContainer);
+        createToggle(toggleBg, backgroundSelector);
+        createToggle(toggleQuote, quoteContainer);
+        createToggle(toggleAmbient, ambientContainer);
+
+        // ============ FULLSCREEN ============
+        fullscreenBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+                fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+            } else {
+                document.exitFullscreen();
+                fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            }
+        });
+
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            }
+        });
+
+        // ============ KEYBOARD SHORTCUTS ============
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !e.target.matches('input')) {
+                e.preventDefault();
+                startTimer();
+            }
+            if (e.code === 'KeyR' && e.ctrlKey) {
+                e.preventDefault();
+                resetTimer();
+            }
+            if (e.code === 'KeyF' && !e.target.matches('input')) {
+                e.preventDefault();
+                fullscreenBtn.click();
+            }
+        });
+
+        // Initialize timer display
+        updateTimerDisplay();
+
+        // Add entrance animations
+        document.querySelectorAll('.glass-panel').forEach((panel, index) => {
+            panel.style.animationDelay = `${index * 0.1}s`;
+            panel.classList.add('animate-in');
         });
     </script>
 </body>
