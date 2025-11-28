@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Habitat - Your Relaxing Study Space</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            overflow: hidden;
+            color: white;
+        }
+
+        /* Background Styles */
+        .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .background-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.5s ease;
+        }
+
+        .background-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .youtube-background {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100vw;
+            height: 100vh;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            display: none;
+        }
+
+        .youtube-background iframe {
+            width: 100vw;
+            height: 56.25vw;
+            min-height: 100vh;
+            min-width: 177.77vh;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 0;
+        }
+
+        /* Glassmorphism Panel */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Toggle Controls */
+        .toggle-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            max-width: 300px;
+            justify-content: flex-end;
+        }
+
+        .toggle-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.1);
+        }
+
+        .toggle-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Pomodoro Timer */
+        .pomodoro-container {
+            position: fixed;
+            top: 50%;
+            left: 50px;
+            transform: translateY(-50%);
+            z-index: 100;
+            transition: all 0.5s ease;
+        }
+
+        .pomodoro-container.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-50%) translateX(-50px);
+        }
+
+        .pomodoro-panel {
+            padding: 30px;
+            min-width: 280px;
+            text-align: center;
+        }
+
+        .pomodoro-title {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+
+        .timer-display {
+            font-size: 64px;
+            font-weight: 300;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            margin: 20px 0;
+        }
+
+        .timer-mode {
+            font-size: 16px;
+            opacity: 0.7;
+            margin-bottom: 20px;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .timer-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .timer-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .timer-btn.primary {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .timer-settings {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .time-input-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .time-input-group label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .time-input-group input {
+            width: 60px;
+            padding: 8px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .loop-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+        }
+
+        /* Goals Panel */
+        .goals-container {
+            position: fixed;
+            top: 50%;
+            right: 50px;
+            transform: translateY(-50%);
+            z-index: 100;
+            transition: all 0.5s ease;
+        }
+
+        .goals-container.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-50%) translateX(50px);
+        }
+
+        .goals-panel {
+            padding: 25px;
+            width: 300px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .goals-panel::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .goals-panel::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+        }
+
+        .goals-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .goals-title {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .add-goal-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .add-goal-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .goal-input-container {
+            display: none;
+            margin-bottom: 15px;
+        }
+
+        .goal-input-container.active {
+            display: flex;
+            gap: 10px;
+        }
+
+        .goal-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .goal-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .goal-submit {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .goal-submit:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .goals-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .goal-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .goal-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .goal-checkbox {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .goal-checkbox.completed {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .goal-checkbox i {
+            font-size: 12px;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .goal-checkbox.completed i {
+            opacity: 1;
+        }
+
+        .goal-text {
+            flex: 1;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .goal-item.completed .goal-text {
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+
+        .goal-delete {
+            opacity: 0;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .goal-item:hover .goal-delete {
+            opacity: 0.7;
+        }
+
+        .goal-delete:hover {
+            opacity: 1 !important;
+        }
+
+        /* Background Selector */
+        .background-selector {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            transition: all 0.5s ease;
+        }
+
+        .background-selector.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateX(-50%) translateY(50px);
+        }
+
+        .bg-panel {
+            padding: 20px;
+            max-width: 600px;
+        }
+
+        .bg-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .bg-tab {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .bg-tab:hover, .bg-tab.active {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .bg-content {
+            display: none;
+        }
+
+        .bg-content.active {
+            display: block;
+        }
+
+        .bg-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .bg-item {
+            width: 100%;
+            aspect-ratio: 16/9;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .bg-item:hover {
+            transform: scale(1.05);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .bg-item.active {
+            border-color: white;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .bg-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .youtube-input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .youtube-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .youtube-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .youtube-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .youtube-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .volume-control label {
+            font-size: 12px;
+            opacity: 0.8;
+            white-space: nowrap;
+        }
+
+        .volume-slider {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .custom-upload {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .upload-btn {
+            padding: 15px;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .custom-bg-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .custom-bg-item {
+            position: relative;
+        }
+
+        .custom-bg-item .delete-custom {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .custom-bg-item:hover .delete-custom {
+            opacity: 1;
+        }
+
+        /* Motivational Quote */
+        .quote-container {
+            position: fixed;
+            bottom: 150px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 50;
+            text-align: center;
+            max-width: 600px;
+            padding: 0 20px;
+            transition: all 0.5s ease;
+        }
+
+        .quote-container.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .quote-text {
+            font-size: 24px;
+            font-weight: 300;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        .quote-author {
+            margin-top: 15px;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        /* Ambient Sound Player */
+        .ambient-container {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 100;
+            transition: all 0.5s ease;
+        }
+
+        .ambient-container.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateX(-50px);
+        }
+
+        .ambient-panel {
+            padding: 20px;
+            width: 280px;
+        }
+
+        .ambient-title {
+            font-size: 14px;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        .sound-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .sound-item {
+            padding: 15px 10px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            font-size: 12px;
+        }
+
+        .sound-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .sound-item.active {
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+
+        .sound-item i {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .ambient-volume {
+            margin-top: 15px;
+        }
+
+        /* Toggle Switch */
+        .switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.2);
+            transition: 0.4s;
+            border-radius: 26px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Fullscreen Button */
+        .fullscreen-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            opacity: 0.6;
+        }
+
+        .empty-state i {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+        
+       .ghibli-icon {
+    width: 26px; 
+    height: 26px;
+    object-fit: contain;
+    display: block; /* evita desalineación vertical */
+    margin-top: 4px; /* se ajusta igual que los FA */
+}
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .pomodoro-container {
+                left: 20px;
+                top: 100px;
+                transform: none;
+            }
+
+            .goals-container {
+                right: 20px;
+                top: auto;
+                bottom: 200px;
+                transform: none;
+            }
+
+            .goals-panel {
+                width: 260px;
+                max-height: 300px;
+            }
+
+            .bg-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .toggle-controls {
+                top: 10px;
+                right: 10px;
+            }
+
+            .quote-container {
+                bottom: 250px;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Container -->
+    <div class="background-container">
+        <img src="https://media.giphy.com/media/l0MYB8Ory7Hqefo9a/giphy.gif" alt="Background" class="background-image" id="backgroundImage">
+        <div class="youtube-background" id="youtubeBackground"></div>
+    </div>
+    <div class="overlay"></div>
+
+    <!-- Toggle Controls -->
+    <div class="toggle-controls">
+        <button class="toggle-btn active" id="toggleTimer" title="Toggle Timer">
+            <i class="fas fa-clock"></i>
+        </button>
+        <button class="toggle-btn active" id="toggleGoals" title="Toggle Goals">
+            <i class="fas fa-list-check"></i>
+        </button>
+        <button class="toggle-btn active" id="toggleBg" title="Toggle Background Selector">
+            <i class="fas fa-image"></i>
+        </button>
+        <button class="toggle-btn active" id="toggleQuote" title="Toggle Quote">
+            <i class="fas fa-quote-right"></i>
+        </button>
+        <button class="toggle-btn active" id="toggleAmbient" title="Toggle Ambient Sounds">
+            <i class="fas fa-music"></i>
+        </button>
+        <button class="toggle-btn" id="fullscreenBtn" title="Fullscreen">
+            <i class="fas fa-expand"></i>
+        </button>
+    </div>
+
+    <!-- Pomodoro Timer -->
+    <div class="pomodoro-container" id="pomodoroContainer">
+        <div class="pomodoro-panel glass-panel">
+            <div class="pomodoro-title">Pomodoro Timer</div>
+            <div class="timer-display" id="timerDisplay">25:00</div>
+            <div class="timer-mode" id="timerMode">Focus Time</div>
+            <div class="timer-controls">
+                <button class="timer-btn primary" id="startBtn">
+                    <i class="fas fa-play"></i> Start
+                </button>
+                <button class="timer-btn" id="resetBtn">
+                    <i class="fas fa-redo"></i> Reset
+                </button>
+            </div>
+            <div class="timer-settings">
+                <div class="time-input-group">
+                    <label>Focus (min)</label>
+                    <input type="number" id="focusTime" value="25" min="1" max="120">
+                </div>
+                <div class="time-input-group">
+                    <label>Break (min)</label>
+                    <input type="number" id="breakTime" value="5" min="1" max="60">
+                </div>
+                <div class="loop-toggle">
+                    <span>Loop automatically</span>
+                    <label class="switch">
+                        <input type="checkbox" id="loopToggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Session Goals -->
+    <div class="goals-container" id="goalsContainer">
+        <div class="goals-panel glass-panel">
+            <div class="goals-header">
+                <span class="goals-title">📝 Today's Goals</span>
+                <button class="add-goal-btn" id="addGoalBtn">+</button>
+            </div>
+            <div class="goal-input-container" id="goalInputContainer">
+                <input type="text" class="goal-input" id="goalInput" placeholder="Add a new goal...">
+                <button class="goal-submit" id="goalSubmit">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+            <div class="goals-list" id="goalsList">
+                <!-- Goals will be added here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Background Selector -->
+    <div class="background-selector" id="backgroundSelector">
+        <div class="bg-panel glass-panel">
+            <div class="bg-tabs">
+                <button class="bg-tab active" data-tab="presets">Presets</button>
+                <button class="bg-tab" data-tab="youtube">YouTube</button>
+                <button class="bg-tab" data-tab="custom">Custom</button>
+            </div>
+            <div class="bg-content active" id="presets">
+                <div class="bg-grid">
+                    <div class="bg-item active" data-bg="https://media.giphy.com/media/l0MYB8Ory7Hqefo9a/giphy.gif">
+                        <img src="https://media.giphy.com/media/l0MYB8Ory7Hqefo9a/giphy.gif" alt="Anime City">
+                    </div>
+                    <div class="bg-item" data-bg="https://media.giphy.com/media/3o6ZsVbs2GzgKNvVpS/giphy.gif">
+                        <img src="https://media.giphy.com/media/3o6ZsVbs2GzgKNvVpS/giphy.gif" alt="Rain">
+                    </div>
+                    <div class="bg-item" data-bg="https://media.giphy.com/media/xT9IgG50Fb7Mi0prBC/giphy.gif">
+                        <img src="https://media.giphy.com/media/xT9IgG50Fb7Mi0prBC/giphy.gif" alt="Nature">
+                    </div>
+                    <div class="bg-item" data-bg="https://media.giphy.com/media/demgpwJ6rs2DS/giphy.gif">
+                        <img src="https://media.giphy.com/media/demgpwJ6rs2DS/giphy.gif" alt="Cafe">
+                    </div>
+                    <div class="bg-item" data-bg="https://media.giphy.com/media/l4FGni1RBAR2OWsGk/giphy.gif">
+                        <img src="https://media.giphy.com/media/l4FGni1RBAR2OWsGk/giphy.gif" alt="Lofi">
+                    </div>
+                    <div class="bg-item" data-bg="https://media.giphy.com/media/26BROrSHlmyzzHf3i/giphy.gif">
+                        <img src="https://media.giphy.com/media/26BROrSHlmyzzHf3i/giphy.gif" alt="Stars">
+                    </div>
+                    <div class="bg-item" data-bg="https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif">
+                        <img src="https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif" alt="Aurora">
+                    </div>
+                    <div class="bg-item" data-bg="https://media.giphy.com/media/5xtDarqlsEW6F7F14Fq/giphy.gif">
+                        <img src="https://media.giphy.com/media/5xtDarqlsEW6F7F14Fq/giphy.gif" alt="Ocean">
+                    </div>
+                </div>
+            </div>
+            <div class="bg-content" id="youtube">
+                <div class="youtube-input-container">
+                    <input type="text" class="youtube-input" id="youtubeUrl" placeholder="Paste YouTube URL...">
+                    <button class="youtube-btn" id="setYoutubeBtn">Set</button>
+                </div>
+                <div class="volume-control">
+                    <label><i class="fas fa-volume-up"></i> Video Sound</label>
+                    <input type="range" class="volume-slider" id="youtubeVolume" min="0" max="100" value="50">
+                </div>
+                <button class="youtube-btn" id="clearYoutubeBtn" style="margin-top: 10px; width: 100%;">
+                    <i class="fas fa-times"></i> Clear YouTube Background
+                </button>
+            </div>
+            <div class="bg-content" id="custom">
+                <div class="custom-upload">
+                    <label class="upload-btn" for="customBgUpload">
+                        <i class="fas fa-cloud-upload-alt"></i><br>
+                        Click to upload image or GIF
+                    </label>
+                    <input type="file" id="customBgUpload" accept="image/*" style="display: none;">
+                    <div class="custom-bg-grid" id="customBgGrid">
+                        <!-- Custom backgrounds will be added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Motivational Quote -->
+    <div class="quote-container" id="quoteContainer">
+        <p class="quote-text" id="quoteText">"The secret of getting ahead is getting started."</p>
+        <p class="quote-author" id="quoteAuthor">— Mark Twain</p>
+    </div>
+
+    <!-- Ambient Sound Player -->
+    <div class="ambient-container" id="ambientContainer">
+        <div class="ambient-panel glass-panel">
+            <div class="ambient-title">🎵 Ambient Sounds</div>
+            <div class="sound-grid">
+                <button class="sound-item" data-sound="rain">
+                    <i class="fas fa-cloud-rain"></i>
+                    Rain
+                </button>
+                <button class="sound-item" data-sound="forest">
+                    <i class="fas fa-tree"></i>
+                    Forest
+                </button>
+                <button class="sound-item" data-sound="cafe">
+                    <i class="fas fa-coffee"></i>
+                    Cafe
+                </button>
+                <button class="sound-item" data-sound="ocean">
+                    <i class="fas fa-water"></i>
+                    Ocean
+                </button>
+                <button class="sound-item" data-sound="fire">
+                    <i class="fas fa-fire"></i>
+                    Fireplace
+                </button>
+                <button class="sound-item" data-sound="wind">
+                    <i class="fas fa-wind"></i>
+                    Wind
+                </button>
+                <button class="sound-item" data-sound="ghibli">
+                  <img src="https://i.imgur.com/mIjKBmc.png" class="sound-icon ghibli-icon">
+                  ghibli
+                </button>
+            </div>
+            <div class="volume-control ambient-volume">
+                <label><i class="fas fa-volume-up"></i> Volume</label>
+                <input type="range" class="volume-slider" id="ambientVolume" min="0" max="100" value="50">
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio Elements -->
+    <audio id="rainSound" loop>
+        <source src="https://soundbible.com/grab.php?id=2065&type=mp3" type="audio/mpeg">
+    </audio>
+    <audio id="forestSound" loop>
+        <source src="https://soundbible.com/grab.php?id=1818&type=mp3" type="audio/mpeg">
+    </audio>
+    <audio id="cafeSound" loop>
+        <source src="https://soundbible.com/grab.php?id=2083&type=mp3" type="audio/mpeg">
+    </audio>
+    <audio id="oceanSound" loop>
+        <source src="https://soundbible.com/grab.php?id=2032&type=mp3" type="audio/mpeg">
+    </audio>
+    <audio id="fireSound" loop>
+        <source src="https://soundbible.com/grab.php?id=1543&type=mp3" type="audio/mpeg">
+    </audio>
+    <audio id="windSound" loop>
+        <source src="https://soundbible.com/grab.php?id=2094&type=mp3" type="audio/mpeg">
+    </audio>
+    <audio id="alarmSound">
+        <source src="https://soundbible.com/grab.php?id=1746&type=mp3" type="audio/mpeg">
+    </audio>
+    <audio id="ghibli">
+        <source src="https://soundbible.com/grab.php?id=1746&type=mp3" type="audio/mpeg">
+    </audio>
+
+
+    <script>
+        // ============ POMODORO TIMER ============
+        let timerInterval = null;
+        let isRunning = false;
+        let isBreakTime = false;
+        let timeLeft = 25 * 60;
+
+        const timerDisplay = document.getElementById('timerDisplay');
+        const timerMode = document.getElementById('timerMode');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const focusTimeInput = document.getElementById('focusTime');
+        const breakTimeInput = document.getElementById('breakTime');
+        const loopToggle = document.getElementById('loopToggle');
+        const alarmSound = document.getElementById('alarmSound');
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.title = `${timerDisplay.textContent} - Study Habitat`;
+        }
+
+        function startTimer() {
+            if (isRunning) {
+                clearInterval(timerInterval);
+                isRunning = false;
+                startBtn.innerHTML = '<i class="fas fa-play"></i> Start';
+            } else {
+                isRunning = true;
+                startBtn.innerHTML = '<i class="fas fa-pause"></i> Pause';
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    updateTimerDisplay();
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        alarmSound.play();
+                        if (loopToggle.checked) {
+                            isBreakTime = !isBreakTime;
+                            timeLeft = isBreakTime ? breakTimeInput.value * 60 : focusTimeInput.value * 60;
+                            timerMode.textContent = isBreakTime ? '☕ Break Time' : '📚 Focus Time';
+                            startTimer();
+                        } else {
+                            isRunning = false;
+                            startBtn.innerHTML = '<i class="fas fa-play"></i> Start';
+                        }
+                    }
+                }, 1000);
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            isBreakTime = false;
+            timeLeft = focusTimeInput.value * 60;
+            timerMode.textContent = '📚 Focus Time';
+            startBtn.innerHTML = '<i class="fas fa-play"></i> Start';
+            updateTimerDisplay();
+        }
+
+        startBtn.addEventListener('click', startTimer);
+        resetBtn.addEventListener('click', resetTimer);
+        focusTimeInput.addEventListener('change', () => {
+            if (!isRunning && !isBreakTime) {
+                timeLeft = focusTimeInput.value * 60;
+                updateTimerDisplay();
+            }
+        });
+
+        // ============ SESSION GOALS ============
+        const goalsList = document.getElementById('goalsList');
+        const addGoalBtn = document.getElementById('addGoalBtn');
+        const goalInputContainer = document.getElementById('goalInputContainer');
+        const goalInput = document.getElementById('goalInput');
+        const goalSubmit = document.getElementById('goalSubmit');
+
+        let goals = JSON.parse(localStorage.getItem('studyGoals')) || [];
+
+        function saveGoals() {
+            localStorage.setItem('studyGoals', JSON.stringify(goals));
+        }
+
+        function renderGoals() {
+            if (goals.length === 0) {
+                goalsList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-clipboard-list"></i>
+                        <p>No goals yet. Add one!</p>
+                    </div>
+                `;
+                return;
+            }
+            goalsList.innerHTML = goals.map((goal, index) => `
+                <div class="goal-item ${goal.completed ? 'completed' : ''}" data-index="${index}">
+                    <div class="goal-checkbox ${goal.completed ? 'completed' : ''}" onclick="toggleGoal(${index})">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <span class="goal-text">${goal.text}</span>
+                    <button class="goal-delete" onclick="deleteGoal(${index})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function addGoal() {
+            const text = goalInput.value.trim();
+            if (text) {
+                goals.push({ text, completed: false });
+                saveGoals();
+                renderGoals();
+                goalInput.value = '';
+                goalInputContainer.classList.remove('active');
+            }
+        }
+
+        window.toggleGoal = function(index) {
+            goals[index].completed = !goals[index].completed;
+            saveGoals();
+            renderGoals();
+        };
+
+        window.deleteGoal = function(index) {
+            goals.splice(index, 1);
+            saveGoals();
+            renderGoals();
+        };
+
+        addGoalBtn.addEventListener('click', () => {
+            goalInputContainer.classList.toggle('active');
+            if (goalInputContainer.classList.contains('active')) {
+                goalInput.focus();
+            }
+        });
+
+        goalSubmit.addEventListener('click', addGoal);
+        goalInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addGoal();
+        });
+
+        renderGoals();
+
+        // ============ BACKGROUND SELECTOR ============
+        const backgroundImage = document.getElementById('backgroundImage');
+        const youtubeBackground = document.getElementById('youtubeBackground');
+        const bgTabs = document.querySelectorAll('.bg-tab');
+        const bgContents = document.querySelectorAll('.bg-content');
+        const bgItems = document.querySelectorAll('.bg-item');
+        const youtubeUrl = document.getElementById('youtubeUrl');
+        const setYoutubeBtn = document.getElementById('setYoutubeBtn');
+        const clearYoutubeBtn = document.getElementById('clearYoutubeBtn');
+        const youtubeVolume = document.getElementById('youtubeVolume');
+        const customBgUpload = document.getElementById('customBgUpload');
+        const customBgGrid = document.getElementById('customBgGrid');
+
+        let customBackgrounds = JSON.parse(localStorage.getItem('customBackgrounds')) || [];
+        let youtubePlayer = null;
+
+        bgTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                bgTabs.forEach(t => t.classList.remove('active'));
+                bgContents.forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+            });
+        });
+
+        bgItems.forEach(item => {
+            item.addEventListener('click', () => {
+                bgItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                backgroundImage.src = item.dataset.bg;
+                backgroundImage.style.display = 'block';
+                youtubeBackground.style.display = 'none';
+                youtubeBackground.innerHTML = '';
+                localStorage.setItem('selectedBackground', item.dataset.bg);
+            });
+        });
+
+        function getYoutubeVideoId(url) {
+            const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+            const match = url.match(regex);
+            return match ? match[1] : null;
+        }
+
+        setYoutubeBtn.addEventListener('click', () => {
+            const videoId = getYoutubeVideoId(youtubeUrl.value);
+            if (videoId) {
+                backgroundImage.style.display = 'none';
+                youtubeBackground.style.display = 'block';
+                youtubeBackground.innerHTML = `
+                    <iframe 
+                        id="youtubeIframe"
+                        src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&modestbranding=1&enablejsapi=1"
+                        frameborder="0"
+                        allow="autoplay; encrypted-media"
+                        allowfullscreen>
+                    </iframe>
+                `;
+                localStorage.setItem('youtubeBackground', youtubeUrl.value);
+                bgItems.forEach(i => i.classList.remove('active'));
+                
+                // Initialize YouTube player
+                setTimeout(() => {
+                    initYouTubePlayer();
+                }, 1000);
+            }
+        });
+
+       // Initialize YouTube API
+        function initYouTubePlayer() {
+            const iframe = document.getElementById('youtubeIframe');
+            if (iframe && window.YT && window.YT.Player) {
+                youtubePlayer = new YT.Player('youtubeIframe', {
+                    events: {
+                        'onReady': onPlayerReady
+                    }
+                });
+            }
+        }
+
+        function onPlayerReady(event) {
+            const volume = parseInt(youtubeVolume.value);
+            event.target.setVolume(volume);
+        }
+
+        // YouTube volume control
+        youtubeVolume.addEventListener('input', () => {
+            const volume = parseInt(youtubeVolume.value);
+            if (youtubePlayer && youtubePlayer.setVolume) {
+                youtubePlayer.setVolume(volume);
+            }
+            localStorage.setItem('youtubeVolume', volume);
+        });
+
+        // Load saved YouTube volume
+        const savedYoutubeVolume = localStorage.getItem('youtubeVolume');
+        if (savedYoutubeVolume) {
+            youtubeVolume.value = savedYoutubeVolume;
+        }
+
+        clearYoutubeBtn.addEventListener('click', () => {
+            youtubeBackground.style.display = 'none';
+            youtubeBackground.innerHTML = '';
+            backgroundImage.style.display = 'block';
+            localStorage.removeItem('youtubeBackground');
+            youtubeUrl.value = '';
+            youtubePlayer = null;
+        });
+
+        // Custom background upload
+        customBgUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const dataUrl = event.target.result;
+                    customBackgrounds.push(dataUrl);
+                    localStorage.setItem('customBackgrounds', JSON.stringify(customBackgrounds));
+                    renderCustomBackgrounds();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function renderCustomBackgrounds() {
+            customBgGrid.innerHTML = customBackgrounds.map((bg, index) => `
+                <div class="bg-item custom-bg-item" data-custom-bg="${index}">
+                    <img src="${bg}" alt="Custom Background">
+                    <button class="delete-custom" onclick="deleteCustomBg(${index}); event.stopPropagation();">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `).join('');
+
+            document.querySelectorAll('[data-custom-bg]').forEach(item => {
+                item.addEventListener('click', () => {
+                    const index = parseInt(item.dataset.customBg);
+                    backgroundImage.src = customBackgrounds[index];
+                    backgroundImage.style.display = 'block';
+                    youtubeBackground.style.display = 'none';
+                    bgItems.forEach(i => i.classList.remove('active'));
+                });
+            });
+        }
+
+        window.deleteCustomBg = function(index) {
+            customBackgrounds.splice(index, 1);
+            localStorage.setItem('customBackgrounds', JSON.stringify(customBackgrounds));
+            renderCustomBackgrounds();
+        };
+
+        renderCustomBackgrounds();
+
+        // Load saved background
+// Load saved background
+        const savedBg = localStorage.getItem('selectedBackground');
+        const savedYoutube = localStorage.getItem('youtubeBackground');
+        if (savedYoutube) {
+            youtubeUrl.value = savedYoutube;
+            setYoutubeBtn.click();
+        } else if (savedBg) {
+            backgroundImage.src = savedBg;
+            bgItems.forEach(item => {
+                if (item.dataset.bg === savedBg) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        // Load YouTube API
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        // YouTube API ready callback
+        window.onYouTubeIframeAPIReady = function() {
+            if (savedYoutube) {
+                setTimeout(() => {
+                    initYouTubePlayer();
+                }, 1500);
+            }
+        };
+
+        // ============ MOTIVATIONAL QUOTES ============
+        const quotes = [
+            { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
+            { text: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius" },
+            { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
+            { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+            { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+            { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+            { text: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson" },
+            { text: "Education is the most powerful weapon which you can use to change the world.", author: "Nelson Mandela" },
+            { text: "The more that you read, the more things you will know.", author: "Dr. Seuss" },
+            { text: "Start where you are. Use what you have. Do what you can.", author: "Arthur Ashe" }
+        ];
+
+        const quoteText = document.getElementById('quoteText');
+        const quoteAuthor = document.getElementById('quoteAuthor');
+
+        function showRandomQuote() {
+            const quote = quotes[Math.floor(Math.random() * quotes.length)];
+            quoteText.textContent = `"${quote.text}"`;
+            quoteAuthor.textContent = `— ${quote.author}`;
+        }
+
+        showRandomQuote();
+        setInterval(showRandomQuote, 60000); // Change quote every minute
+
+        // ============ AMBIENT SOUNDS ============
+        const soundItems = document.querySelectorAll('.sound-item');
+        const ambientVolume = document.getElementById('ambientVolume');
+
+        const sounds = {
+            rain: document.getElementById('rainSound'),
+            forest: document.getElementById('forestSound'),
+            cafe: document.getElementById('cafeSound'),
+            ocean: document.getElementById('oceanSound'),
+            fire: document.getElementById('fireSound'),
+            wind: document.getElementById('windSound'),
+            ghibli: document.getElementById('ghibli')
+        };
+
+        let currentSound = null;
+
+        soundItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const soundType = item.dataset.sound;
+                const sound = sounds[soundType];
+
+                if (currentSound === sound && !sound.paused) {
+                    sound.pause();
+                    item.classList.remove('active');
+                    currentSound = null;
+                } else {
+                    // Stop all sounds
+                    Object.values(sounds).forEach(s => s.pause());
+                    soundItems.forEach(i => i.classList.remove('active'));
+
+                    // Play selected sound
+                    sound.volume = ambientVolume.value / 100;
+                    sound.play().catch(e => console.log('Audio play failed:', e));
+                    item.classList.add('active');
+                    currentSound = sound;
+                }
+            });
+        });
+
+        ambientVolume.addEventListener('input', () => {
+            if (currentSound) {
+                currentSound.volume = ambientVolume.value / 100;
+            }
+        });
+
+        // ============ TOGGLE CONTROLS ============
+        const toggleTimer = document.getElementById('toggleTimer');
+        const toggleGoals = document.getElementById('toggleGoals');
+        const toggleBg = document.getElementById('toggleBg');
+        const toggleQuote = document.getElementById('toggleQuote');
+        const toggleAmbient = document.getElementById('toggleAmbient');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+        const pomodoroContainer = document.getElementById('pomodoroContainer');
+        const goalsContainer = document.getElementById('goalsContainer');
+        const backgroundSelector = document.getElementById('backgroundSelector');
+        const quoteContainer = document.getElementById('quoteContainer');
+        const ambientContainer = document.getElementById('ambientContainer');
+
+        function createToggle(btn, container) {
+            btn.addEventListener('click', () => {
+                btn.classList.toggle('active');
+                container.classList.toggle('hidden');
+                localStorage.setItem(btn.id, btn.classList.contains('active'));
+            });
+
+            // Load saved state
+            const savedState = localStorage.getItem(btn.id);
+            if (savedState === 'false') {
+                btn.classList.remove('active');
+                container.classList.add('hidden');
+            }
+        }
+
+        createToggle(toggleTimer, pomodoroContainer);
+        createToggle(toggleGoals, goalsContainer);
+        createToggle(toggleBg, backgroundSelector);
+        createToggle(toggleQuote, quoteContainer);
+        createToggle(toggleAmbient, ambientContainer);
+
+        // ============ FULLSCREEN ============
+        fullscreenBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+                fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+            } else {
+                document.exitFullscreen();
+                fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            }
+        });
+
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            }
+        });
+
+        // ============ KEYBOARD SHORTCUTS ============
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !e.target.matches('input')) {
+                e.preventDefault();
+                startTimer();
+            }
+            if (e.code === 'KeyR' && e.ctrlKey) {
+                e.preventDefault();
+                resetTimer();
+            }
+            if (e.code === 'KeyF' && !e.target.matches('input')) {
+                e.preventDefault();
+                fullscreenBtn.click();
+            }
+        });
+
+        // Initialize timer display
+        updateTimerDisplay();
+
+        // Add entrance animations
+        document.querySelectorAll('.glass-panel').forEach((panel, index) => {
+            panel.style.animationDelay = `${index * 0.1}s`;
+            panel.classList.add('animate-in');
+        });
+    </script>
+</body>
+</html>
