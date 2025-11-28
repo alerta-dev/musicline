@@ -1018,6 +1018,10 @@
                   <img src="https://i.imgur.com/mIjKBmc.png" class="sound-icon ghibli-icon">
                   ghibli
                 </button>
+                <button class="sound-item" data-sound="neverland">
+                  <img src="https://i.imgur.com/mIjKBmc.png" class="sound-icon ghibli-icon">
+                  FM Neverland
+                </button>
             </div>
             <div class="volume-control ambient-volume">
                 <label><i class="fas fa-volume-up"></i> Volume</label>
@@ -1049,6 +1053,9 @@
         <source src="https://soundbible.com/grab.php?id=1746&type=mp3" type="audio/mpeg">
     </audio>
     <audio id="ghibli">
+        <source src="https://stream.zeno.fm/oaqigxpfjzqvv" type="audio/mpeg">
+    </audio>
+    <audio id="neverland">
         <source src="https://stream.zeno.fm/oaqigxpfjzqvv" type="audio/mpeg">
     </audio>
 
@@ -1419,6 +1426,8 @@
             fire: document.getElementById('fireSound'),
             wind: document.getElementById('windSound'),
             ghibli: document.getElementById('ghibli')
+            neverland: document.getElementById('neverland')
+
         };
 
         let currentSound = null;
